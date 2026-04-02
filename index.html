@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Générateur de Prompts IA — VI Formation</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='12' fill='%230A0F2C'/><text y='.9em' font-size='62' font-family='Impact,sans-serif' font-weight='700' fill='%230066FF' x='50' text-anchor='middle' dominant-baseline='top'>VI</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue:#0066FF;
+  --navy:#0A0F2C;
+  --navy-mid:#111936;
+  --white:#FFFFFF;
+  --off-white:#F7F8FC;
+  --gray:#6B7280;
+  --gray-light:#E5E7EB;
+  --gray-mid:#9CA3AF;
+  --green:#00C48C;
+  --text:#1A1F36;
+  --border:#E2E6F0;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:#fff;color:var(--text);font-family:'Barlow',sans-serif;font-weight:400;min-height:100vh;}
+
+/* HEADER */
+.site-header{
+  background:#fff;
+  border-bottom:1px solid var(--border);
+  padding:0 40px;
+  height:64px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  position:sticky;
+  top:0;
+  z-index:100;
+  box-shadow:0 1px 8px rgba(0,0,0,0.06);
+}
+.logo{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:22px;
+  font-weight:800;
+  color:var(--navy);
+  text-decoration:none;
+  letter-spacing:0.05em;
+  text-transform:uppercase;
+}
+.logo span{color:var(--blue);}
+.header-badge{
+  background:rgba(0,102,255,0.08);
+  color:var(--blue);
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:0.15em;
+  text-transform:uppercase;
+  padding:6px 14px;
+  border-radius:20px;
+  border:1px solid rgba(0,102,255,0.2);
+}
+
+/* HERO */
+.hero{
+  background:linear-gradient(135deg,var(--navy) 0%,#0A2463 60%,#0066FF 100%);
+  padding:72px 40px 64px;
+  text-align:center;
+  color:#fff;
+  position:relative;
+  overflow:hidden;
+}
+.hero::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background-image:linear-gradient(rgba(255,255,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.03) 1px,transparent 1px);
+  background-size:40px 40px;
+  pointer-events:none;
+}
+.hero-tag{
+  display:inline-block;
+  background:rgba(255,255,255,0.12);
+  border:1px solid rgba(255,255,255,0.2);
+  color:#fff;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:0.25em;
+  text-transform:uppercase;
+  padding:6px 18px;
+  border-radius:20px;
+  margin-bottom:24px;
+}
+.hero h1{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:clamp(36px,6vw,60px);
+  font-weight:800;
+  line-height:1.0;
+  text-transform:uppercase;
+  margin-bottom:16px;
+  position:relative;
+}
+.hero h1 .accent{color:#60A5FA;}
+.hero p{
+  font-size:17px;
+  color:rgba(255,255,255,0.75);
+  max-width:520px;
+  margin:0 auto;
+  line-height:1.65;
+  position:relative;
+}
+.hero-steps{
+  display:flex;
+  justify-content:center;
+  gap:32px;
+  margin-top:36px;
+  flex-wrap:wrap;
+  position:relative;
+}
+.hero-step{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:13px;
+  color:rgba(255,255,255,0.7);
+  font-weight:500;
+}
+.hero-step .dot{
+  width:28px;
+  height:28px;
+  background:rgba(255,255,255,0.15);
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:800;
+  font-size:13px;
+  color:#fff;
+}
+
+/* MAIN LAYOUT */
+.main{max-width:780px;margin:0 auto;padding:48px 24px 80px;}
+
+/* PROGRESS */
+.progress-wrap{margin-bottom:40px;}
+.progress-info{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.progress-label{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--gray);}
+.progress-pct{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:var(--blue);}
+.progress-bar{height:4px;background:var(--gray-light);border-radius:4px;overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--blue),#60A5FA);border-radius:4px;transition:width 0.5s cubic-bezier(.4,0,.2,1);width:0%;}
+
+/* QUESTION CARD */
+.question-card{
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:36px;
+  box-shadow:0 2px 16px rgba(0,0,0,0.06);
+  animation:slideIn 0.35s ease both;
+  display:none;
+}
+.question-card.active{display:block;}
+@keyframes slideIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.question-num{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:0.3em;
+  text-transform:uppercase;
+  color:var(--blue);
+  margin-bottom:10px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.question-num::before{content:'';width:20px;height:2px;background:var(--blue);border-radius:2px;}
+.question-text{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:clamp(20px,4vw,26px);
+  font-weight:700;
+  color:var(--navy);
+  line-height:1.2;
+  margin-bottom:8px;
+  text-transform:uppercase;
+}
+.question-hint{
+  font-size:14px;
+  color:var(--gray);
+  margin-bottom:28px;
+  line-height:1.5;
+}
+
+/* INPUT TYPES */
+.input-text{
+  width:100%;
+  border:1.5px solid var(--border);
+  border-radius:10px;
+  padding:14px 18px;
+  font-size:15px;
+  font-family:'Barlow',sans-serif;
+  color:var(--text);
+  background:#fff;
+  outline:none;
+  transition:border 0.2s,box-shadow 0.2s;
+  resize:vertical;
+  min-height:52px;
+}
+.input-text:focus{
+  border-color:var(--blue);
+  box-shadow:0 0 0 3px rgba(0,102,255,0.1);
+}
+.input-text::placeholder{color:var(--gray-mid);}
+
+.options-grid{display:flex;flex-direction:column;gap:10px;}
+.option-btn{
+  background:#fff;
+  border:1.5px solid var(--border);
+  border-radius:10px;
+  padding:14px 18px;
+  cursor:pointer;
+  transition:all 0.18s;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  font-size:15px;
+  color:var(--text);
+  text-align:left;
+  font-family:'Barlow',sans-serif;
+}
+.option-btn:hover{
+  border-color:var(--blue);
+  background:rgba(0,102,255,0.03);
+  color:var(--navy);
+}
+.option-btn.selected{
+  border-color:var(--blue);
+  background:rgba(0,102,255,0.06);
+  color:var(--navy);
+  font-weight:500;
+}
+.option-radio{
+  width:20px;
+  height:20px;
+  border-radius:50%;
+  border:2px solid var(--border);
+  flex-shrink:0;
+  transition:all 0.18s;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.option-btn.selected .option-radio{
+  border-color:var(--blue);
+  background:var(--blue);
+}
+.option-btn.selected .option-radio::after{
+  content:'';
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:#fff;
+}
+
+.char-count{
+  text-align:right;
+  font-size:12px;
+  color:var(--gray-mid);
+  margin-top:6px;
+}
+
+/* NAV BUTTONS */
+.nav-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-top:28px;
+  gap:12px;
+}
+.btn-prev{
+  background:transparent;
+  border:1.5px solid var(--border);
+  color:var(--gray);
+  border-radius:8px;
+  padding:12px 24px;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:14px;
+  font-weight:700;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  cursor:pointer;
+  transition:all 0.18s;
+}
+.btn-prev:hover{border-color:var(--gray);color:var(--text);}
+.btn-next{
+  background:var(--blue);
+  color:#fff;
+  border:none;
+  border-radius:8px;
+  padding:14px 32px;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:15px;
+  font-weight:700;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  cursor:pointer;
+  transition:all 0.18s;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  opacity:0.4;
+  pointer-events:none;
+}
+.btn-next.enabled{opacity:1;pointer-events:all;}
+.btn-next.enabled:hover{background:#0052CC;transform:translateY(-1px);}
+.btn-generate{
+  background:linear-gradient(135deg,var(--navy),var(--blue));
+  color:#fff;
+  border:none;
+  border-radius:8px;
+  padding:16px 36px;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:16px;
+  font-weight:800;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  cursor:pointer;
+  transition:all 0.18s;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  opacity:0.4;
+  pointer-events:none;
+}
+.btn-generate.enabled{opacity:1;pointer-events:all;}
+.btn-generate.enabled:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,102,255,0.3);}
+
+/* RÉSULTAT */
+.result-section{display:none;animation:slideIn 0.4s ease both;}
+.result-section.active{display:block;}
+.result-header{
+  text-align:center;
+  margin-bottom:40px;
+}
+.result-header .tag{
+  display:inline-block;
+  background:rgba(0,196,140,0.1);
+  color:var(--green);
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+  padding:6px 16px;
+  border-radius:20px;
+  margin-bottom:16px;
+}
+.result-header h2{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:clamp(28px,5vw,40px);
+  font-weight:800;
+  text-transform:uppercase;
+  color:var(--navy);
+  line-height:1.1;
+  margin-bottom:8px;
+}
+.result-header p{font-size:15px;color:var(--gray);}
+
+/* Prompt box */
+.prompt-card{
+  background:#fff;
+  border:2px solid var(--blue);
+  border-radius:16px;
+  overflow:hidden;
+  box-shadow:0 4px 24px rgba(0,102,255,0.12);
+  margin-bottom:28px;
+}
+.prompt-card-header{
+  background:var(--navy);
+  padding:16px 24px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.prompt-card-header .dots{display:flex;gap:6px;}
+.prompt-card-header .dot{width:10px;height:10px;border-radius:50%;}
+.dot-red{background:#FF5F57;}
+.dot-yellow{background:#FFBD2E;}
+.dot-green{background:#28CA41;}
+.prompt-card-header .label{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,0.5);
+}
+.prompt-body{
+  padding:28px;
+  min-height:160px;
+}
+.prompt-text{
+  font-size:15px;
+  color:var(--text);
+  line-height:1.8;
+  white-space:pre-wrap;
+  font-family:'Barlow',sans-serif;
+  font-weight:400;
+}
+.prompt-text .placeholder{
+  background:rgba(0,102,255,0.1);
+  color:var(--blue);
+  border-radius:4px;
+  padding:1px 6px;
+  font-weight:600;
+}
+
+/* Skeleton */
+.skeleton-line{
+  height:14px;
+  background:linear-gradient(90deg,#F3F4F6 25%,#E5E7EB 50%,#F3F4F6 75%);
+  background-size:200% 100%;
+  animation:shimmer 1.4s infinite;
+  border-radius:4px;
+  margin-bottom:12px;
+}
+.skeleton-line.w95{width:95%;}
+.skeleton-line.w85{width:85%;}
+.skeleton-line.w75{width:75%;}
+.skeleton-line.w65{width:65%;}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+.prompt-actions{
+  padding:0 28px 24px;
+  display:flex;
+  gap:12px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+.btn-copy{
+  background:var(--blue);
+  color:#fff;
+  border:none;
+  border-radius:8px;
+  padding:11px 22px;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:14px;
+  font-weight:700;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  cursor:pointer;
+  transition:all 0.18s;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.btn-copy:hover{background:#0052CC;}
+.btn-chatgpt{
+  background:#10A37F;
+  color:#fff;
+  border:none;
+  border-radius:8px;
+  padding:11px 22px;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:14px;
+  font-weight:700;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  cursor:pointer;
+  transition:all 0.18s;
+  text-decoration:none;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+}
+.btn-chatgpt:hover{background:#0D8F6F;}
+.copied-badge{
+  font-size:13px;
+  color:var(--green);
+  font-weight:600;
+  opacity:0;
+  transition:opacity 0.3s;
+}
+.copied-badge.show{opacity:1;}
+
+/* Conseil card */
+.conseil-card{
+  background:var(--off-white);
+  border:1px solid var(--border);
+  border-left:4px solid var(--blue);
+  border-radius:12px;
+  padding:28px;
+  margin-bottom:28px;
+}
+.conseil-card h3{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:14px;
+  font-weight:700;
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+  color:var(--blue);
+  margin-bottom:14px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.conseil-text{
+  font-size:14px;
+  color:var(--text);
+  line-height:1.75;
+}
+.conseil-text p{margin-bottom:10px;}
+.conseil-text p:last-child{margin-bottom:0;}
+.conseil-text strong{color:var(--navy);font-weight:600;}
+
+/* CTA bottom */
+.cta-card{
+  background:linear-gradient(135deg,var(--navy) 0%,#0A2463 100%);
+  border-radius:16px;
+  padding:36px;
+  text-align:center;
+  color:#fff;
+  position:relative;
+  overflow:hidden;
+}
+.cta-card::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background-image:linear-gradient(rgba(255,255,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.03) 1px,transparent 1px);
+  background-size:32px 32px;
+  pointer-events:none;
+}
+.cta-card h3{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:24px;
+  font-weight:800;
+  text-transform:uppercase;
+  margin-bottom:10px;
+  position:relative;
+}
+.cta-card p{
+  font-size:14px;
+  color:rgba(255,255,255,0.7);
+  margin-bottom:24px;
+  position:relative;
+}
+.btn-cta{
+  display:inline-block;
+  background:var(--blue);
+  color:#fff;
+  text-decoration:none;
+  border-radius:8px;
+  padding:14px 32px;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:16px;
+  font-weight:700;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  transition:all 0.18s;
+  position:relative;
+}
+.btn-cta:hover{background:#60A5FA;transform:translateY(-2px);}
+.btn-restart{
+  background:transparent;
+  border:1.5px solid rgba(255,255,255,0.3);
+  color:rgba(255,255,255,0.7);
+  border-radius:8px;
+  padding:12px 24px;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:14px;
+  font-weight:700;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  cursor:pointer;
+  transition:all 0.18s;
+  margin-left:12px;
+}
+.btn-restart:hover{border-color:rgba(255,255,255,0.6);color:#fff;}
+
+/* FOOTER */
+.site-footer{
+  border-top:1px solid var(--border);
+  padding:24px 40px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:#fff;
+}
+.footer-brand{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:14px;
+  font-weight:700;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  color:var(--navy);
+}
+.footer-brand span{color:var(--blue);}
+.footer-link{
+  font-size:12px;
+  color:var(--gray);
+  text-decoration:none;
+}
+.footer-link:hover{color:var(--blue);}
+
+@media(max-width:600px){
+  .site-header{padding:0 20px;}
+  .hero{padding:48px 20px 40px;}
+  .hero-steps{gap:16px;}
+  .main{padding:32px 16px 60px;}
+  .question-card{padding:24px 20px;}
+  .site-footer{flex-direction:column;gap:10px;text-align:center;}
+  .nav-row{flex-wrap:wrap;}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+  <a href="https://viformation.vercel.app" class="logo">VI <span>Formation</span></a>
+  <span class="header-badge">✨ Générateur de Prompts IA</span>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tag">Outil gratuit — VI Formation</div>
+  <h1>Génère ton <span class="accent">prompt parfait</span><br>en 2 minutes</h1>
+  <p>Réponds à 10 questions sur ton activité et tes besoins.<br>Notre IA crée un prompt sur mesure, immédiatement utilisable dans ChatGPT.</p>
+  <div class="hero-steps">
+    <div class="hero-step"><div class="dot">1</div>10 questions rapides</div>
+    <div class="hero-step"><div class="dot">2</div>Analyse par IA</div>
+    <div class="hero-step"><div class="dot">3</div>Prompt prêt à l'emploi</div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- PROGRESS -->
+  <div class="progress-wrap" id="progress-wrap">
+    <div class="progress-info">
+      <span class="progress-label" id="prog-label">Question 1 sur 10</span>
+      <span class="progress-pct" id="prog-pct">0%</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill"></div></div>
+  </div>
+
+  <!-- Q1 -->
+  <div class="question-card active" id="q-1">
+    <div class="question-num">Question 01</div>
+    <div class="question-text">Quel est ton prénom ?</div>
+    <div class="question-hint">Pour personnaliser ton prompt et ton analyse.</div>
+    <input class="input-text" id="a1" type="text" placeholder="Ton prénom..." oninput="checkText(1)" maxlength="50">
+    <div class="nav-row">
+      <div></div>
+      <button class="btn-next" id="btn-1" onclick="goNext(1)">Suivant →</button>
+    </div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="question-card" id="q-2">
+    <div class="question-num">Question 02</div>
+    <div class="question-text">Quel est ton métier ou ton activité principale ?</div>
+    <div class="question-hint">Sois précis — c'est la base de ton prompt personnalisé.</div>
+    <input class="input-text" id="a2" type="text" placeholder="Ex : coach de vie, comptable indépendant, photographe..." oninput="checkText(2)" maxlength="120">
+    <div class="nav-row">
+      <button class="btn-prev" onclick="goPrev(2)">← Retour</button>
+      <button class="btn-next" id="btn-2" onclick="goNext(2)">Suivant →</button>
+    </div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="question-card" id="q-3">
+    <div class="question-num">Question 03</div>
+    <div class="question-text">Pour qui travailles-tu ? Décris ton client idéal.</div>
+    <div class="question-hint">Ton public cible, leur situation, leurs besoins.</div>
+    <textarea class="input-text" id="a3" placeholder="Ex : indépendants belges entre 30 et 50 ans qui veulent se reconvertir..." oninput="checkText(3)" maxlength="300" rows="3"></textarea>
+    <div class="char-count" id="cc3">0 / 300</div>
+    <div class="nav-row">
+      <button class="btn-prev" onclick="goPrev(3)">← Retour</button>
+      <button class="btn-next" id="btn-3" onclick="goNext(3)">Suivant →</button>
+    </div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="question-card" id="q-4">
+    <div class="question-num">Question 04</div>
+    <div class="question-text">Quel est ton objectif principal avec l'IA ?</div>
+    <div class="question-hint">Choisis l'option qui correspond le mieux à ta situation actuelle.</div>
+    <div class="options-grid" id="q4-opts">
+      <button class="option-btn" data-q="4" data-v="temps" onclick="selectOpt(this,4)"><div class="option-radio"></div>Gagner du temps sur mes tâches quotidiennes</button>
+      <button class="option-btn" data-q="4" data-v="contenu" onclick="selectOpt(this,4)"><div class="option-radio"></div>Créer du contenu pour mes réseaux / mon activité</button>
+      <button class="option-btn" data-q="4" data-v="clients" onclick="selectOpt(this,4)"><div class="option-radio"></div>Trouver et convaincre plus de clients</button>
+      <button class="option-btn" data-q="4" data-v="ecriture" onclick="selectOpt(this,4)"><div class="option-radio"></div>Améliorer ma rédaction professionnelle</button>
+      <button class="option-btn" data-q="4" data-v="analyse" onclick="selectOpt(this,4)"><div class="option-radio"></div>Analyser des données ou résoudre des problèmes complexes</button>
+      <button class="option-btn" data-q="4" data-v="formation" onclick="selectOpt(this,4)"><div class="option-radio"></div>Me former / former d'autres personnes</button>
+    </div>
+    <div class="nav-row">
+      <button class="btn-prev" onclick="goPrev(4)">← Retour</button>
+      <button class="btn-next" id="btn-4" onclick="goNext(4)">Suivant →</button>
+    </div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="question-card" id="q-5">
+    <div class="question-num">Question 05</div>
+    <div class="question-text">Quelle tâche spécifique veux-tu que l'IA t'aide à accomplir aujourd'hui ?</div>
+    <div class="question-hint">Sois le plus précis possible — c'est le cœur de ton prompt.</div>
+    <textarea class="input-text" id="a5" placeholder="Ex : rédiger une newsletter hebdomadaire pour mes clients, préparer un plan de cours sur l'IA, analyser mon chiffre d'affaires mensuel..." oninput="checkText(5)" maxlength="400" rows="4"></textarea>
+    <div class="char-count" id="cc5">0 / 400</div>
+    <div class="nav-row">
+      <button class="btn-prev" onclick="goPrev(5)">← Retour</button>
+      <button class="btn-next" id="btn-5" onclick="goNext(5)">Suivant →</button>
+    </div>
+  </div>
+
+  <!-- Q6 -->
+  <div class="question-card" id="q-6">
+    <div class="question-num">Question 06</div>
+    <div class="question-text">Quel ton ou style veux-tu pour le résultat ?</div>
+    <div class="question-hint">Comment veux-tu que l'IA communique dans sa réponse ?</div>
+    <div class="options-grid" id="q6-opts">
+      <button class="option-btn" data-q="6" data-v="professionnel" onclick="selectOpt(this,6)"><div class="option-radio"></div>Professionnel et structuré</button>
+      <button class="option-btn" data-q="6" data-v="chaleureux" onclick="selectOpt(this,6)"><div class="option-radio"></div>Chaleureux et accessible</button>
+      <button class="option-btn" data-q="6" data-v="percutant" onclick="selectOpt(this,6)"><div class="option-radio"></div>Percutant et direct (style marketing)</button>
+      <button class="option-btn" data-q="6" data-v="pedagogique" onclick="selectOpt(this,6)"><div class="option-radio"></div>Pédagogique et clair (pour des débutants)</button>
+      <button class="option-btn" data-q="6" data-v="creatif" onclick="selectOpt(this,6)"><div class="option-radio"></div>Créatif et original</button>
+    </div>
+    <div class="nav-row">
+      <button class="btn-prev" onclick="goPrev(6)">← Retour</button>
+      <button class="btn-next" id="btn-6" onclick="goNext(6)">Suivant →</button>
+    </div>
+  </div>
+
+  <!-- Q7 -->
+  <div class="question-card" id="q-7">
+    <div class="question-num">Question 07</div>
+    <div class="question-text">Quel format de réponse attends-tu de l'IA ?</div>
+    <div class="question-hint">La forme que doit prendre le résultat généré.</div>
+    <div class="options-grid" id="q7-opts">
+      <button class="option-btn" data-q="7" data-v="texte" onclick="selectOpt(this,7)"><div class="option-radio"></div>Un texte fluide et rédigé</button>
+      <button class="option-btn" data-q="7" data-v="liste" onclick="selectOpt(this,7)"><div class="option-radio"></div>Une liste structurée avec des points clés</button>
+      <button class="option-btn" data-q="7" data-v="plan" onclick="selectOpt(this,7)"><div class="option-radio"></div>Un plan détaillé avec des sections</button>
+      <button class="option-btn" data-q="7" data-v="tableau" onclick="selectOpt(this,7)"><div class="option-radio"></div>Un tableau comparatif</button>
+      <button class="option-btn" data-q="7" data-v="email" onclick="selectOpt(this,7)"><div class="option-radio"></div>Un email / message prêt à envoyer</button>
+      <button class="option-btn" data-q="7" data-v="script" onclick="selectOpt(this,7)"><div class="option-radio"></div>Un script ou dialogue</button>
+    </div>
+    <div class="nav-row">
+      <button class="btn-prev" onclick="goPrev(7)">← Retour</button>
+      <button class="btn-next" id="btn-7" onclick="goNext(7)">Suivant →</button>
+    </div>
+  </div>
+
+  <!-- Q8 -->
+  <div class="question-card" id="q-8">
+    <div class="question-num">Question 08</div>
+    <div class="question-text">Y a-t-il des contraintes ou éléments importants à intégrer ?</div>
+    <div class="question-hint">Langue, longueur, éléments à éviter, références spécifiques… Laisse vide si aucune contrainte.</div>
+    <textarea class="input-text" id="a8" placeholder="Ex : maximum 300 mots, en français, éviter le jargon technique, mentionner ma ville (Liège), inclure un appel à l'action..." oninput="checkText8()" maxlength="400" rows="3"></textarea>
+    <div class="char-count" id="cc8">0 / 400</div>
+    <div class="nav-row">
+      <button class="btn-prev" onclick="goPrev(8)">← Retour</button>
+      <button class="btn-next enabled" id="btn-8" onclick="goNext(8)">Suivant →</button>
+    </div>
+  </div>
+
+  <!-- Q9 -->
+  <div class="question-card" id="q-9">
+    <div class="question-num">Question 09</div>
+    <div class="question-text">Quel est ton niveau actuel avec l'IA ?</div>
+    <div class="question-hint">Pour calibrer la complexité et les explications du prompt.</div>
+    <div class="options-grid" id="q9-opts">
+      <button class="option-btn" data-q="9" data-v="debutant" onclick="selectOpt(this,9)"><div class="option-radio"></div>🌱 Débutant — je découvre l'IA</button>
+      <button class="option-btn" data-q="9" data-v="intermediaire" onclick="selectOpt(this,9)"><div class="option-radio"></div>📈 Intermédiaire — j'utilise l'IA régulièrement</button>
+      <button class="option-btn" data-q="9" data-v="avance" onclick="selectOpt(this,9)"><div class="option-radio"></div>🚀 Avancé — je maîtrise le prompt engineering</button>
+    </div>
+    <div class="nav-row">
+      <button class="btn-prev" onclick="goPrev(9)">← Retour</button>
+      <button class="btn-next" id="btn-9" onclick="goNext(9)">Suivant →</button>
+    </div>
+  </div>
+
+  <!-- Q10 -->
+  <div class="question-card" id="q-10">
+    <div class="question-num">Question 10</div>
+    <div class="question-text">Un résultat idéal à toi ressemblerait à quoi ?</div>
+    <div class="question-hint">Décris en quelques mots ce que tu voudrais obtenir. C'est la touche finale de personnalisation.</div>
+    <textarea class="input-text" id="a10" placeholder="Ex : un post LinkedIn de 200 mots qui génère des commentaires, une réponse claire que je peux copier-coller directement, un plan que je peux adapter facilement..." oninput="checkText(10)" maxlength="400" rows="4"></textarea>
+    <div class="char-count" id="cc10">0 / 400</div>
+    <div class="nav-row">
+      <button class="btn-prev" onclick="goPrev(10)">← Retour</button>
+      <button class="btn-generate enabled" id="btn-10" onclick="generatePrompt()">✨ Générer mon prompt →</button>
+    </div>
+  </div>
+
+  <!-- RÉSULTAT -->
+  <div class="result-section" id="result">
+    <div class="result-header">
+      <div class="tag">✅ Ton prompt est prêt</div>
+      <h2 id="result-title">Ton prompt personnalisé</h2>
+      <p id="result-subtitle">Généré en fonction de tes 10 réponses — prêt à coller dans ChatGPT</p>
+    </div>
+
+    <div class="prompt-card">
+      <div class="prompt-card-header">
+        <div class="dots"><div class="dot dot-red"></div><div class="dot dot-yellow"></div><div class="dot dot-green"></div></div>
+        <span class="label">Ton prompt — ChatGPT ready</span>
+        <div></div>
+      </div>
+      <div class="prompt-body">
+        <div class="prompt-text" id="prompt-output">
+          <div class="skeleton-line w95"></div>
+          <div class="skeleton-line w85"></div>
+          <div class="skeleton-line w95"></div>
+          <div class="skeleton-line w75"></div>
+          <div class="skeleton-line w85"></div>
+          <div class="skeleton-line w65"></div>
+          <div class="skeleton-line w95"></div>
+          <div class="skeleton-line w55" style="width:55%"></div>
+        </div>
+      </div>
+      <div class="prompt-actions">
+        <button class="btn-copy" id="btn-copy" onclick="copyPrompt()" style="display:none;">📋 Copier le prompt</button>
+        <a class="btn-chatgpt" id="btn-chatgpt" href="#" target="_blank" style="display:none;">🤖 Ouvrir dans ChatGPT</a>
+        <span class="copied-badge" id="copied-badge">✓ Copié dans le presse-papier !</span>
+      </div>
+    </div>
+
+    <div class="conseil-card">
+      <h3>💡 Conseils d'utilisation</h3>
+      <div class="conseil-text" id="conseil-output">
+        <div class="skeleton-line w95"></div>
+        <div class="skeleton-line w80"></div>
+        <div class="skeleton-line w90"></div>
+        <div class="skeleton-line w70"></div>
+      </div>
+    </div>
+
+    <div class="cta-card">
+      <h3>Tu veux aller plus loin ?</h3>
+      <p>Rejoins la session découverte gratuite du 20 mai et apprends à créer tes propres prompts puissants avec VI Formation.</p>
+      <div style="position:relative;display:inline-flex;align-items:center;">
+        <a class="btn-cta" href="https://viformation.vercel.app/#contact" target="_blank">Je réserve ma place gratuite →</a>
+        <button class="btn-restart" onclick="restart()">↺ Recommencer</button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <span class="footer-brand">VI <span>Formation</span></span>
+  <a class="footer-link" href="https://viformation.vercel.app" target="_blank">viformation.vercel.app</a>
+</footer>
+
+<script>
+const answers = {};
+let generatedPromptText = '';
+
+// Init
+updateProgress(1);
+
+function checkText(q) {
+  const el = document.getElementById('a'+q);
+  const btn = document.getElementById('btn-'+q);
+  const val = el.value.trim();
+  // char count
+  const cc = document.getElementById('cc'+q);
+  if(cc) cc.textContent = val.length + ' / ' + el.maxLength;
+  if(val.length > 0) { answers[q] = val; btn.classList.add('enabled'); }
+  else { btn.classList.remove('enabled'); }
+}
+
+function checkText8() {
+  const el = document.getElementById('a8');
+  const val = el.value.trim();
+  const cc = document.getElementById('cc8');
+  if(cc) cc.textContent = val.length + ' / ' + el.maxLength;
+  answers[8] = val || 'Aucune contrainte particulière';
+  // btn-8 always enabled
+}
+
+function selectOpt(el, q) {
+  document.querySelectorAll('[data-q="'+q+'"]').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  answers[q] = el.dataset.v;
+  document.getElementById('btn-'+q).classList.add('enabled');
+}
+
+function goNext(current) {
+  if(!document.getElementById('btn-'+current).classList.contains('enabled')) return;
+  // save text answers
+  const el = document.getElementById('a'+current);
+  if(el) answers[current] = el.value.trim() || answers[current];
+  document.getElementById('q-'+current).classList.remove('active');
+  document.getElementById('q-'+(current+1)).classList.add('active');
+  updateProgress(current+1);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function goPrev(current) {
+  document.getElementById('q-'+current).classList.remove('active');
+  document.getElementById('q-'+(current-1)).classList.add('active');
+  updateProgress(current-1);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function updateProgress(step) {
+  const pct = Math.round(((step-1)/10)*100);
+  document.getElementById('prog-fill').style.width = pct+'%';
+  document.getElementById('prog-label').textContent = step <= 10 ? 'Question '+step+' sur 10' : 'Génération en cours...';
+  document.getElementById('prog-pct').textContent = pct+'%';
+}
+
+const objectifMap = {
+  temps: 'gagner du temps et automatiser les tâches répétitives',
+  contenu: 'créer du contenu pour les réseaux sociaux et le marketing',
+  clients: 'trouver et convaincre plus de clients',
+  ecriture: 'améliorer la rédaction professionnelle',
+  analyse: 'analyser des données et résoudre des problèmes complexes',
+  formation: 'former ou se former sur un sujet'
+};
+const tonMap = {
+  professionnel: 'professionnel et structuré',
+  chaleureux: 'chaleureux et accessible',
+  percutant: 'percutant et direct, style marketing',
+  pedagogique: 'pédagogique et clair, adapté aux débutants',
+  creatif: 'créatif et original'
+};
+const formatMap = {
+  texte: 'un texte fluide et rédigé',
+  liste: 'une liste structurée avec des points clés',
+  plan: 'un plan détaillé avec des sections',
+  tableau: 'un tableau comparatif',
+  email: 'un email ou message prêt à envoyer',
+  script: 'un script ou dialogue'
+};
+const niveauMap = {
+  debutant: 'débutant complet avec l\'IA',
+  intermediaire: 'utilisateur intermédiaire de l\'IA',
+  avance: 'utilisateur avancé maîtrisant le prompt engineering'
+};
+
+async function generatePrompt() {
+  // save last answer
+  const el10 = document.getElementById('a10');
+  if(el10) answers[10] = el10.value.trim();
+  answers[8] = answers[8] || document.getElementById('a8').value.trim() || 'Aucune contrainte particulière';
+
+  // Show result section
+  for(let i=1;i<=10;i++) { const c = document.getElementById('q-'+i); if(c) c.classList.remove('active'); }
+  document.getElementById('progress-wrap').style.display='none';
+  const resultEl = document.getElementById('result');
+  resultEl.classList.add('active');
+  const prenom = answers[1] || 'toi';
+  document.getElementById('result-title').textContent = `Ton prompt, ${prenom} ✨`;
+  document.getElementById('result-subtitle').textContent = 'Généré spécialement pour ton activité et tes besoins — prêt à coller dans ChatGPT';
+  window.scrollTo({top:0,behavior:'smooth'});
+
+  const systemPrompt = `Tu es un expert en prompt engineering pour ChatGPT, spécialisé dans la création de prompts professionnels ultra-personnalisés pour des indépendants, entrepreneurs et professionnels francophones. Tu crées des prompts immédiatement utilisables, précis et efficaces.`;
+
+  const userPrompt = `Crée un prompt ChatGPT professionnel et ultra-personnalisé pour cette personne. Voici son profil complet :
+
+- Prénom : ${answers[1]||'Non précisé'}
+- Métier / activité : ${answers[2]||'Non précisé'}
+- Public cible / clients : ${answers[3]||'Non précisé'}
+- Objectif principal avec l'IA : ${objectifMap[answers[4]]||answers[4]||'Non précisé'}
+- Tâche spécifique souhaitée : ${answers[5]||'Non précisé'}
+- Ton et style voulu : ${tonMap[answers[6]]||answers[6]||'professionnel'}
+- Format de réponse attendu : ${formatMap[answers[7]]||answers[7]||'texte structuré'}
+- Contraintes spécifiques : ${answers[8]||'Aucune'}
+- Niveau IA : ${niveauMap[answers[9]]||answers[9]||'intermédiaire'}
+- Résultat idéal décrit : ${answers[10]||'Non précisé'}
+
+Génère UN prompt ChatGPT complet qui :
+1. Commence par définir le rôle de l'IA ("Tu es...", "Agis comme...", etc.)
+2. Intègre le contexte métier précis de la personne
+3. Décrit la tâche avec tous les détails nécessaires
+4. Spécifie le ton, le format et les contraintes
+5. Se termine par une instruction claire sur ce que l'IA doit produire
+6. Utilise des [CROCHETS] pour les éléments à personnaliser si besoin
+7. Fait entre 150 et 300 mots
+
+Réponds UNIQUEMENT avec le prompt, sans introduction ni explication. Le prompt doit être en français.`;
+
+  const conseilPrompt = `Tu es Virginie, formatrice en IA chez VI Formation (Belgique). Tu t'adresses à ${answers[1]||'l\'utilisateur'} directement en "tu".
+
+Basé sur ce profil :
+- Métier : ${answers[2]||'?'}
+- Objectif : ${objectifMap[answers[4]]||'?'}
+- Niveau IA : ${niveauMap[answers[9]]||'?'}
+- Tâche visée : ${answers[5]||'?'}
+
+Rédige 3 conseils pratiques et personnalisés (en 3 paragraphes courts de 2-3 phrases chacun) pour :
+1. Comment utiliser ce prompt efficacement
+2. Comment l'améliorer et l'adapter au fil du temps
+3. Quelle serait la prochaine étape logique pour progresser avec l'IA selon son profil
+
+Ton : direct, chaleureux, concret. Utilise **gras** pour les points clés. Commence directement par le premier conseil sans intro.`;
+
+  // Parallel API calls
+  const [promptText, conseilText] = await Promise.all([
+    callClaude(systemPrompt, userPrompt),
+    callClaude('', conseilPrompt)
+  ]);
+
+  generatedPromptText = promptText;
+
+  // Display prompt
+  document.getElementById('prompt-output').textContent = promptText;
+  document.getElementById('btn-copy').style.display = 'inline-flex';
+  const chatgptBtn = document.getElementById('btn-chatgpt');
+  chatgptBtn.style.display = 'inline-flex';
+  chatgptBtn.href = 'https://chat.openai.com/?q=' + encodeURIComponent(promptText.substring(0,500));
+
+  // Display conseil
+  const conseilEl = document.getElementById('conseil-output');
+  const paragraphes = conseilText.split('\n\n').filter(p => p.trim());
+  conseilEl.innerHTML = paragraphes.map(p => `<p>${p.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>')}</p>`).join('');
+}
+
+async function callClaude(system, user) {
+  try {
+    const body = { model:'claude-sonnet-4-20250514', max_tokens:1000, messages:[{role:'user',content:user}] };
+    if(system) body.system = system;
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(body)
+    });
+    const data = await res.json();
+    return data.content?.[0]?.text || '';
+  } catch(e) { return 'Erreur de génération — vérifie ta connexion et réessaie.'; }
+}
+
+function copyPrompt() {
+  navigator.clipboard.writeText(generatedPromptText).then(() => {
+    const badge = document.getElementById('copied-badge');
+    badge.classList.add('show');
+    setTimeout(() => badge.classList.remove('show'), 2500);
+  });
+}
+
+function restart() {
+  location.reload();
+}
+</script>
+</body>
+</html>
