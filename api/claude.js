@@ -19,14 +19,14 @@ export default async function handler(req, res) {
     if (system) messages.push({ role: 'system', content: system });
     messages.push({ role: 'user', content: user });
 
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
+        model: 'gpt-4o',
         max_tokens: 1000,
         messages
       })
